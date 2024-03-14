@@ -1,8 +1,6 @@
 import Phaser from 'phaser'
 
 export default class GameScene extends Phaser.Scene {
-
-
   constructor() {
     super('game-scene')
 
@@ -10,21 +8,28 @@ export default class GameScene extends Phaser.Scene {
     this.cursors = undefined;
 
     this.directionX = 0,
-      this.directionY = 0;
+    this.directionY = 0;
   }
 
   preload() {
     this.load.image('PH_player', 'assets/images/PH_player.png');
+    
   }
 
   create() {
     this.player = this.createPlayer();
     this.cursors = this.input.keyboard.createCursorKeys();
+
+    this.cooldown = {
+      timer: 0,
+      isBeginning: false
+    };
   }
 
 
   createPlayer() {
     const player = this.physics.add.sprite(960, 540, 'PH_player');
+    player.setScale(.25)
     player.setCollideWorldBounds(true);
 
     return player
@@ -36,15 +41,14 @@ export default class GameScene extends Phaser.Scene {
 
   movement() {
     const speed = 50,
-      speedDeg = speed / 2 * Math.sqrt(2);
+          speedDeg = speed / 2 * Math.sqrt(2);
 
+    if (this.cursors.space.isDown && !this.cooldown.isBeginning) {
+      if (this.directionX == 0 || this.directionY == 0) this.player.setVelocity(this.directionX * speed * 50, this.directionY * speed * 50)
+      else this.player.setVelocity(this.directionX * speedDeg * 50, this.directionY * speedDeg * 50)
 
-
-
-    if (this.cursors.space.isDown) {
-      console.log(this.directionX, this.directionY);
-      if (this.directionX == 0 || this.directionY == 0) this.player.setVelocity(this.directionX * speed * 10, this.directionY * speed * 10)
-      else this.player.setVelocity(this.directionX * speedDeg * 10, this.directionY * speedDeg * 10)
+      this.cooldown.isBeginning = true
+      this.cooldown.timer = 0
 
     } else if (this.cursors.left.isDown && this.cursors.up.isDown) {
       [this.directionX, this.directionY] = [-1, -1];
@@ -79,33 +83,13 @@ export default class GameScene extends Phaser.Scene {
       this.player.setVelocity(0, speed)
       this.player.setRotation(degToRad(180))
     } else {
-      this.player.setVelocity(0, 0)
+      this.player.setVelocityX(0);
+      this.player.setVelocityY(0);
     }
 
-    // if (this.cursors.left.isDown) {
-    //   this.player.setVelocityX(-50);
-    //   this.player.setVelocityY(0);
-    //   this.player.setRotation(degToRad(-90))
-    // } else if (this.cursors.right.isDown) {
-    //   this.player.setVelocityX(50);
-    //   this.player.setVelocityY(0);
-    //   this.player.setRotation(degToRad(90))
-    // } else if (this.cursors.up.isDown) {
-    //   this.player.setVelocityX(0);
-    //   this.player.setVelocityY(-50);
-    //   this.player.setRotation(degToRad(0))
-    // } else if (this.cursors.down.isDown) {
-    //   this.player.setVelocityX(0);
-    //   this.player.setVelocityY(50);
-    //   this.player.setRotation(degToRad(180))
-    // } else if ((this.cursors.left.isDown) && (this.cursors.up.isDown)) {
-    //   this.player.setVelocityX(-50);
-    //   this.player.setVelocityY(-50);
-    //   this.player.setRotation(degToRad(-45))
-    // } else {
-    //   this.player.setVelocityX(0);
-    //   this.player.setVelocityY(0);
-    // }
+
+    if (this.cooldown.isBeginning)    this.cooldown.timer += 1
+    if (this.cooldown.timer >= 50)  this.cooldown.isBeginning = false
   }
 }
 
