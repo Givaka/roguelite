@@ -8,6 +8,9 @@
 
 ```
 npx degit https://github.com/ourcade/phaser3-vite-template my-folder-name
+cd my-folder-name
+
+npm install
 ```
 
 Запустите сервер разработки или запустить `startServer.bat`:
